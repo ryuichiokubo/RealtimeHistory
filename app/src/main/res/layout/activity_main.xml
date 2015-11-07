@@ -8,11 +8,13 @@
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
+    <!-- TODO consider using another component... no need to scroll -->
     <android.support.design.widget.AppBarLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:theme="@style/AppTheme.AppBarOverlay">
 
+        <!-- TODO hide / show toolbar on clicking anywhere -->
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -24,12 +26,14 @@
 
     <include layout="@layout/content_main"/>
 
+    <!-- TODO add buttons for eating, shopping... -->
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@android:drawable/ic_dialog_email"/>
+        android:src="@android:drawable/ic_dialog_email"
+        />
 
 </android.support.design.widget.CoordinatorLayout>
