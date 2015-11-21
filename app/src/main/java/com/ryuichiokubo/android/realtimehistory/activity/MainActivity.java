@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 	private void setDate() {
 		// XXX
 		TextView date = (TextView) findViewById(R.id.date);
-		date.setText(DateConverter.getInstance().getNameInOldFormat());
+		date.setText(DateConverter.getInstance().getNameInOldFormat(this));
 	}
 
 	private void setTime() {
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
 	private void setFloatingActionButton() {
 		final AlertDialog dialog = new AlertDialog.Builder(this)
-				.setTitle(getString(R.string.news_title, DateConverter.getInstance().getNameInOldFormat()))
+				.setTitle(getString(R.string.news_title, DateConverter.getInstance().getNameInOldFormat(this)))
 				.setMessage(EventManager.getEvent())
 				.create();
 
