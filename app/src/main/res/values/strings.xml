@@ -1,4 +1,17 @@
 <resources>
-    <string name="app_name">Realtime History</string>
-    <string name="action_settings">Settings</string>
+    <string name="app_name">江戸Life</string>
+    <string name="sleeping">寝ています。</string>
+    <string name="awake">起きる時間です。</string>
+    <string name="breakfast">朝ご飯を食べています。</string>
+    <string name="lunch">お昼ご飯を食べています。</string>
+    <string name="calligraphy">習字を教えています。</string>
+    <string name="math">算数を教えています。</string>
+    <string name="geography">地理を教えています。</string>
+    <string name="classic">古典を教えています。</string>
+    <string name="history">歴史を教えています。</string>
+    <string name="shopping">買い物をしています。</string>
+    <string name="dinner">夕飯を食べています。</string>
+    <string name="bath">銭湯に入っています。</string>
+    <string name="reading">浮世草子を読んでいます。</string>
+    <string name="kabuki">歌舞伎を見ています。</string>
 </resources>

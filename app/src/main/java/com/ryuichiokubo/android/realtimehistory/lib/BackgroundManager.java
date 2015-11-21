@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BackgroundManager {
+public final class BackgroundManager {
 	private static final Map<Integer, Integer> HOUR_BG_MAP;
 
 	static {
