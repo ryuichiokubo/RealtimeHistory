@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
 	private void setFloatingActionButton() {
 		final AlertDialog dialog = new AlertDialog.Builder(this)
-				.setTitle(R.string.news_title)
+				.setCustomTitle(EventManager.getEventTitle(this))
 				.setMessage(EventManager.getEvent())
 				.create();
 

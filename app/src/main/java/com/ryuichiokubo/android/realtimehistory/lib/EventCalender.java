@@ -114,4 +114,20 @@ public final class EventCalender {
 
 		return todayData.get(DataType.OLD_DAY);
 	}
+
+	public String getEvent() {
+		if (todayData == null) {
+			throw new IllegalStateException();
+		}
+
+		return todayData.get(DataType.EVENT);
+	}
+
+	public String getLink() {
+		if (todayData == null) {
+			throw new IllegalStateException();
+		}
+
+		return todayData.get(DataType.LINK);
+	}
 }
