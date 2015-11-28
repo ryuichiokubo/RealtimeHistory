@@ -13,6 +13,7 @@ import com.ryuichiokubo.android.realtimehistory.R;
 import com.ryuichiokubo.android.realtimehistory.lib.BackgroundManager;
 import com.ryuichiokubo.android.realtimehistory.lib.CurrentStatusManager;
 import com.ryuichiokubo.android.realtimehistory.lib.DateConverter;
+import com.ryuichiokubo.android.realtimehistory.lib.EventCalender;
 import com.ryuichiokubo.android.realtimehistory.lib.EventManager;
 import com.ryuichiokubo.android.realtimehistory.lib.TimeConverter;
 
@@ -27,8 +28,12 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 		wholeView = findViewById(R.id.main);
 
+		// XXX move to somewhere?
+		EventCalender.getInstance().init(this);
+
 		setCurrentStatusBar();
 		setFloatingActionButton();
+
 	}
 
 	private void setCurrentStatusBar() {
@@ -67,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 	private void setDate() {
 		// XXX
 		TextView date = (TextView) findViewById(R.id.date);
-		date.setText(DateConverter.getInstance().getNameInOldFormat(this));
+		date.setText(DateConverter.getInstance().getNameInOldFormat());
 	}
 
 	private void setTime() {
@@ -77,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
 	private void setFloatingActionButton() {
 		final AlertDialog dialog = new AlertDialog.Builder(this)
-				.setTitle(getString(R.string.news_title, DateConverter.getInstance().getNameInOldFormat(this)))
+				.setTitle(R.string.news_title)
 				.setMessage(EventManager.getEvent())
 				.create();
 
