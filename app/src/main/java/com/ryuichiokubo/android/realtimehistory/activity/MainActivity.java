@@ -19,22 +19,22 @@ import com.ryuichiokubo.android.realtimehistory.lib.TimeConverter;
 
 public class MainActivity extends AppCompatActivity {
 
-	private View wholeView;
 	private AlertDialog dialog;
+	private Snackbar statusBar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
-		wholeView = findViewById(R.id.main);
+		View view = findViewById(R.id.main);
 
 		// XXX move to somewhere?
 		EventCalender.getInstance().init(this);
 
 		setEventDialog();
 
-		setCurrentStatusBar();
+		setCurrentStatusBar(view);
 		setFloatingActionButton();
 	}
 
@@ -45,13 +45,13 @@ public class MainActivity extends AppCompatActivity {
 				.create();
 	}
 
-	private void setCurrentStatusBar() {
-		// TODO set action to see more detail
-		final Snackbar statusBar = Snackbar
-				.make(wholeView, CurrentStatusManager.getStatus(this), Snackbar.LENGTH_INDEFINITE);
+	private void setCurrentStatusBar(View view) {
+		statusBar = Snackbar
+				.make(view, CurrentStatusManager.getStatus(this), Snackbar.LENGTH_INDEFINITE);
+
 		statusBar.show();
 
-		wholeView.setOnClickListener(new View.OnClickListener() {
+		view.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (statusBar.isShown()) {
@@ -70,7 +70,9 @@ public class MainActivity extends AppCompatActivity {
 		// FIXME date and time should be changed based on time, not activity lifecycle
 		setTime();
 		setDate();
+
 		setBackground();
+		statusBar.setText(CurrentStatusManager.getStatus(this));
 	}
 
 	@Override
