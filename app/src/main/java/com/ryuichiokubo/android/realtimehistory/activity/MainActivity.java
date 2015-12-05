@@ -1,5 +1,8 @@
 package com.ryuichiokubo.android.realtimehistory.activity;
 
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -39,9 +42,24 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void setEventDialog() {
+		DialogInterface.OnClickListener linkOpenAction = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				openWebPage(EventCalender.getInstance().getLink());
+			}
+
+			private void openWebPage(String url) {
+				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+				if (intent.resolveActivity(getPackageManager()) != null) {
+					startActivity(intent);
+				}
+			}
+		};
+
 		dialog = new AlertDialog.Builder(this)
-				.setCustomTitle(EventManager.getEventTitle(this))
+				.setTitle(EventManager.getEventTitle(this))
 				.setMessage(EventManager.getEvent())
+				.setNeutralButton(R.string.more, linkOpenAction)
 				.create();
 	}
 
