@@ -1,6 +1,5 @@
 <resources>
 
-    <!-- TODO Theme.AppCompat.NoActionBar for night -->
     <!-- TODO change theme color -->
     <style name="AppTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -8,16 +7,13 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <!-- TODO find out what this does -->
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
     </style>
 
-    <!-- TODO change for night? " -->
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
-    <!-- TODO ThemeOverlay.AppCompat.Dark for night " -->
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
 </resources>
