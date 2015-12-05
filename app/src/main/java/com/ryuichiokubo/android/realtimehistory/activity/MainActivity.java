@@ -20,6 +20,7 @@ import com.ryuichiokubo.android.realtimehistory.lib.TimeConverter;
 public class MainActivity extends AppCompatActivity {
 
 	private View wholeView;
+	private AlertDialog dialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +32,17 @@ public class MainActivity extends AppCompatActivity {
 		// XXX move to somewhere?
 		EventCalender.getInstance().init(this);
 
+		setEventDialog();
+
 		setCurrentStatusBar();
 		setFloatingActionButton();
+	}
 
+	private void setEventDialog() {
+		dialog = new AlertDialog.Builder(this)
+				.setCustomTitle(EventManager.getEventTitle(this))
+				.setMessage(EventManager.getEvent())
+				.create();
 	}
 
 	private void setCurrentStatusBar() {
@@ -58,10 +67,17 @@ public class MainActivity extends AppCompatActivity {
 	protected void onResume() {
 		super.onResume();
 
-		// XXX date and time should be changed based on time, not activity lifecycle
+		// FIXME date and time should be changed based on time, not activity lifecycle
 		setTime();
 		setDate();
 		setBackground();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+
+		dialog.dismiss();
 	}
 
 	private void setBackground() {
@@ -81,11 +97,6 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void setFloatingActionButton() {
-		final AlertDialog dialog = new AlertDialog.Builder(this)
-				.setCustomTitle(EventManager.getEventTitle(this))
-				.setMessage(EventManager.getEvent())
-				.create();
-
 		FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
