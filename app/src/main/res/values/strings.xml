@@ -1,18 +1,21 @@
 <resources>
-    <string name="app_name">江戸Life</string>
-    <string name="sleeping">寝ています。</string>
-    <string name="awake">起きる時間です。</string>
-    <string name="breakfast">朝ご飯を食べています。</string>
-    <string name="lunch">お昼ご飯を食べています。</string>
-    <string name="calligraphy">習字を教えています。</string>
-    <string name="math">算数を教えています。</string>
-    <string name="geography">地理を教えています。</string>
-    <string name="classic">古典を教えています。</string>
-    <string name="history">歴史を教えています。</string>
-    <string name="shopping">買い物をしています。</string>
-    <string name="dinner">夕飯を食べています。</string>
-    <string name="bath">銭湯に入っています。</string>
-    <string name="reading">浮世草子を読んでいます。</string>
-    <string name="kabuki">歌舞伎を見ています。</string>
+    <string name="app_name">幕末Life</string>
+    <string name="date">%1$s年%2$s月%3$s日</string>
     <string name="news_title">今日の出来事</string>
+    <string name="awake">日の出とともに起床します。</string>
+    <string name="breakfast">朝食にご飯と味噌汁を食べています。</string>
+    <string name="calligraphy">寺子屋で読み書きを教えています。</string>
+    <string name="math">寺子屋で算数を教えています。</string>
+    <string name="lunch">昼食にご飯、味噌汁、魚を食べています。</string>
+    <string name="geography">寺子屋で地理・人名を教えています。</string>
+    <string name="philosophy">寺子屋で儒学を教えています。</string>
+    <string name="history">寺子屋で古典・歴史を教えています。</string>
+    <string name="letter">寺子屋で書簡の作成法を教えています。</string>
+    <string name="shopping">街を散策しています。買い物もしましょう。</string>
+    <string name="kabuki">歌舞伎を見ています。</string>
+    <string name="housework">長屋で家事と井戸端会議をしています。</string>
+    <string name="dinner">夕食にご飯、味噌汁、漬け物を食べています。</string>
+    <string name="bath">銭湯に入っています。</string>
+    <string name="reading">行灯の明かりで浮世草子を読んでいます。</string>
+    <string name="sleeping">紙製の掛け布団で寝ています。</string>
 </resources>

@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 	private void setDate() {
 		// XXX
 		TextView date = (TextView) findViewById(R.id.date);
-		date.setText(DateConverter.getInstance().getNameInOldFormat());
+		date.setText(DateConverter.getInstance().getNameInOldFormat(getResources()));
 	}
 
 	private void setTime() {

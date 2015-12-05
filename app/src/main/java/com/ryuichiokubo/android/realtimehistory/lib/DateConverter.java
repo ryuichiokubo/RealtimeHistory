@@ -1,6 +1,11 @@
 package com.ryuichiokubo.android.realtimehistory.lib;
 
+import android.content.res.Resources;
+
+import com.ryuichiokubo.android.realtimehistory.R;
+
 public class DateConverter {
+	@SuppressWarnings("unused")
 	private static final String TAG = "DateConverter";
 
 	private static DateConverter instance = new DateConverter();
@@ -12,10 +17,9 @@ public class DateConverter {
 	private DateConverter() {
 	}
 
-	public String getNameInOldFormat() {
+	public String getNameInOldFormat(Resources resources) {
 		EventCalender eventCalender = EventCalender.getInstance();
-		return eventCalender.getOldYear() + "年"
-				+ eventCalender.getOldMonth() + "月"
-				+ eventCalender.getOldDay() + "日";
+		return resources.getString(R.string.date, eventCalender.getOldYear(),
+				eventCalender.getOldMonth(), eventCalender.getOldDay());
 	}
 }
