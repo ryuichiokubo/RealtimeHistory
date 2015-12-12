@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+// XXX CurrentStatusManager and BackgroundManager should be related
 public final class BackgroundManager {
 	private static final Map<Integer, Integer> HOUR_BG_MAP;
 
