@@ -1,13 +1,17 @@
 package com.ryuichiokubo.android.realtimehistory.activity;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -20,10 +24,21 @@ import com.ryuichiokubo.android.realtimehistory.lib.EventCalender;
 import com.ryuichiokubo.android.realtimehistory.lib.EventManager;
 import com.ryuichiokubo.android.realtimehistory.lib.TimeConverter;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class MainActivity extends AppCompatActivity {
 
+	private static final String TAG = "MainActivity";
 	private AlertDialog dialog;
 	private Snackbar statusBar;
+
+	private String EVENT_DATA_URL = "http://bakumatsu-ryuichiokubo.rhcloud.com";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +49,57 @@ public class MainActivity extends AppCompatActivity {
 
 		// XXX move to somewhere?
 		EventCalender.getInstance().init(this);
+
+		// XXX when reading local data is done, trigger event and it will start downloading data
+		// XXX event driven architecture via mediator
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
+		executorService.submit(new Runnable() {
+			@Override
+			public void run() {
+				ConnectivityManager connMgr = (ConnectivityManager)
+						getSystemService(Context.CONNECTIVITY_SERVICE);
+				NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+				if (networkInfo != null && networkInfo.isConnected()) {
+					URL url;
+					try {
+						url = new URL(EVENT_DATA_URL);
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+						return;
+					}
+					HttpURLConnection conn;
+					try {
+						conn = (HttpURLConnection) url.openConnection();
+					} catch (IOException e) {
+						e.printStackTrace();
+						return;
+					}
+					conn.setReadTimeout(10000 /* milliseconds */);
+					conn.setConnectTimeout(15000 /* milliseconds */);
+					try {
+						conn.setRequestMethod("GET");
+					} catch (ProtocolException e) {
+						e.printStackTrace();
+						return;
+					}
+					try {
+						conn.connect();
+					} catch (IOException e) {
+						e.printStackTrace();
+						return;
+					}
+					int response;
+					try {
+						response = conn.getResponseCode();
+					} catch (IOException e) {
+						e.printStackTrace();
+						return;
+					}
+					Log.d(TAG, "The response is: " + response);
+
+				}
+			}
+		});
 
 		setEventDialog();
 
