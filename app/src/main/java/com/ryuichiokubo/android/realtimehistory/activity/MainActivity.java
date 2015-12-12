@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 						e.printStackTrace();
 						return;
 					}
+
 					HttpURLConnection conn;
 					try {
 						conn = (HttpURLConnection) url.openConnection();
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
 						e.printStackTrace();
 						return;
 					}
+
 					conn.setReadTimeout(10000 /* milliseconds */);
 					conn.setConnectTimeout(15000 /* milliseconds */);
 					try {
@@ -82,12 +84,14 @@ public class MainActivity extends AppCompatActivity {
 						e.printStackTrace();
 						return;
 					}
+
 					try {
 						conn.connect();
 					} catch (IOException e) {
 						e.printStackTrace();
 						return;
 					}
+
 					int response;
 					try {
 						response = conn.getResponseCode();
@@ -96,7 +100,15 @@ public class MainActivity extends AppCompatActivity {
 						return;
 					}
 					Log.d(TAG, "The response is: " + response);
+					if (response != 200) {
+						return;
+					}
 
+					try {
+						EventCalender.writeData(MainActivity.this, conn.getInputStream());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		});
