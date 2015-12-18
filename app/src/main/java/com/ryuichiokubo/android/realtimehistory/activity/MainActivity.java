@@ -48,9 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
 		setCurrentStatusBar(view);
 
-		if (EventCalender.getInstance().isTodayDataSet()) {
-			setFloatingActionButton();
-		}
+		setFloatingActionButton();
 	}
 
 	private void setEventDialog() {
@@ -129,11 +127,16 @@ public class MainActivity extends AppCompatActivity {
 
 	private void setFloatingActionButton() {
 		FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				dialog.show();
-			}
-		});
+
+		if (EventCalender.getInstance().isTodayEventDataSet()) {
+			fab.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					dialog.show();
+				}
+			});
+		} else {
+			fab.setVisibility(View.GONE);
+		}
 	}
 }

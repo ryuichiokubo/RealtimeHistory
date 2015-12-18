@@ -53,8 +53,9 @@ public final class EventCalender {
 	}
 
 	private void downloadData(final Context context) {
-		// TODO: use event driven architecture via mediator
-		// to start downloading when local data read is done
+		// TODO: use event driven architecture via mediato rto start downloading
+		// when local data read is done
+		// TODO: reload todayData and UI when download is complete
 		ExecutorService executorService = Executors.newSingleThreadExecutor();
 
 		executorService.submit(new Runnable() {
@@ -209,8 +210,8 @@ public final class EventCalender {
 		return map;
 	}
 
-	public boolean isTodayDataSet() {
-		return todayData != null;
+	public boolean isTodayEventDataSet() {
+		return !todayData.get(DataType.EVENT).isEmpty() && !todayData.get(DataType.LINK).isEmpty();
 	}
 
 	public String getOldYear() {
