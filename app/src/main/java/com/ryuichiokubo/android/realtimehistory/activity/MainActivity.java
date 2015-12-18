@@ -1,10 +1,7 @@
 package com.ryuichiokubo.android.realtimehistory.activity;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -21,24 +18,16 @@ import com.ryuichiokubo.android.realtimehistory.lib.BackgroundManager;
 import com.ryuichiokubo.android.realtimehistory.lib.CurrentStatusManager;
 import com.ryuichiokubo.android.realtimehistory.lib.DateConverter;
 import com.ryuichiokubo.android.realtimehistory.lib.EventCalender;
-import com.ryuichiokubo.android.realtimehistory.lib.EventManager;
 import com.ryuichiokubo.android.realtimehistory.lib.TimeConverter;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.text.ParseException;
 
 public class MainActivity extends AppCompatActivity {
 
 	private static final String TAG = "MainActivity";
 	private AlertDialog dialog;
 	private Snackbar statusBar;
-
-	private String EVENT_DATA_URL = "http://bakumatsu-ryuichiokubo.rhcloud.com";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,76 +36,21 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 		View view = findViewById(R.id.main);
 
-		// XXX move to somewhere?
-		EventCalender.getInstance().init(this);
-
-		// XXX when reading local data is done, trigger event and it will start downloading data
-		// XXX event driven architecture via mediator
-		ExecutorService executorService = Executors.newSingleThreadExecutor();
-		executorService.submit(new Runnable() {
-			@Override
-			public void run() {
-				ConnectivityManager connMgr = (ConnectivityManager)
-						getSystemService(Context.CONNECTIVITY_SERVICE);
-				NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-				if (networkInfo != null && networkInfo.isConnected()) {
-					URL url;
-					try {
-						url = new URL(EVENT_DATA_URL);
-					} catch (MalformedURLException e) {
-						e.printStackTrace();
-						return;
-					}
-
-					HttpURLConnection conn;
-					try {
-						conn = (HttpURLConnection) url.openConnection();
-					} catch (IOException e) {
-						e.printStackTrace();
-						return;
-					}
-
-					conn.setReadTimeout(10000 /* milliseconds */);
-					conn.setConnectTimeout(15000 /* milliseconds */);
-					try {
-						conn.setRequestMethod("GET");
-					} catch (ProtocolException e) {
-						e.printStackTrace();
-						return;
-					}
-
-					try {
-						conn.connect();
-					} catch (IOException e) {
-						e.printStackTrace();
-						return;
-					}
-
-					int response;
-					try {
-						response = conn.getResponseCode();
-					} catch (IOException e) {
-						e.printStackTrace();
-						return;
-					}
-					Log.d(TAG, "The response is: " + response);
-					if (response != 200) {
-						return;
-					}
-
-					try {
-						EventCalender.writeData(MainActivity.this, conn.getInputStream());
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		});
+		try {
+			EventCalender.getInstance().init(this);
+		} catch (IOException e) {
+			Log.e(TAG, "init failed with IOException. e=" + e);
+		} catch (ParseException e) {
+			Log.e(TAG, "init failed with ParseException. e=" + e);
+		}
 
 		setEventDialog();
 
 		setCurrentStatusBar(view);
-		setFloatingActionButton();
+
+		if (EventCalender.getInstance().isTodayDataSet()) {
+			setFloatingActionButton();
+		}
 	}
 
 	private void setEventDialog() {
@@ -135,8 +69,8 @@ public class MainActivity extends AppCompatActivity {
 		};
 
 		dialog = new AlertDialog.Builder(this)
-				.setTitle(EventManager.getEventTitle(this))
-				.setMessage(EventManager.getEvent())
+				.setTitle(getString(R.string.news_title))
+				.setMessage(EventCalender.getInstance().getEvent())
 				.setNeutralButton(R.string.more, linkOpenAction)
 				.create();
 	}
@@ -184,14 +118,13 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void setDate() {
-		// XXX
 		TextView date = (TextView) findViewById(R.id.date);
 		date.setText(DateConverter.getInstance().getNameInOldFormat(getResources()));
 	}
 
 	private void setTime() {
 		TextView time = (TextView) findViewById(R.id.time);
-		time.setText(TimeConverter.getInstance().getNameInOldFormat());
+		time.setText(TimeConverter.getNameInOldFormat());
 	}
 
 	private void setFloatingActionButton() {

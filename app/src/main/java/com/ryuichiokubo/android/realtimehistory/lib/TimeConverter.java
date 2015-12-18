@@ -2,8 +2,7 @@ package com.ryuichiokubo.android.realtimehistory.lib;
 
 import java.util.Calendar;
 
-// XXX Interface Converter to support getNameInOldFormat?
-public class TimeConverter {
+public final class TimeConverter {
 
 	private enum OldFormat {
 		// Start with rat at 23:00 and change in 2 hours
@@ -24,16 +23,10 @@ public class TimeConverter {
 		}
 	}
 
-	private static TimeConverter instance = new TimeConverter();
-
-	public static TimeConverter getInstance() {
-		return instance;
-	}
-
 	private TimeConverter() {
 	}
 
-	public String getNameInOldFormat() {
+	public static String getNameInOldFormat() {
 		Calendar calendar = Calendar.getInstance();
 		int hour = calendar.get(Calendar.HOUR_OF_DAY);
 
@@ -43,9 +36,6 @@ public class TimeConverter {
 			}
 		}
 
-		// XXX
-		//throw new IllegalStateException();
 		return "";
 	}
-
 }
