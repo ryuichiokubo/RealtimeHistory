@@ -4,3 +4,6 @@
 .DS_Store
 /build
 /captures
+*keystore
+app/app.iml
+*apk
