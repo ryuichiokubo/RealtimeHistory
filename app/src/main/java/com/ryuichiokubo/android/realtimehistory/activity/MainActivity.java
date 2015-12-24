@@ -13,6 +13,9 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.ryuichiokubo.android.realtimehistory.AnalyticsApplication;
 import com.ryuichiokubo.android.realtimehistory.R;
 import com.ryuichiokubo.android.realtimehistory.lib.BackgroundManager;
 import com.ryuichiokubo.android.realtimehistory.lib.CurrentStatusManager;
@@ -56,6 +59,13 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				openWebPage(EventCalender.getInstance().getLink());
+
+				Tracker mTracker = ((AnalyticsApplication) getApplication()).getDefaultTracker();
+				Log.i(TAG, "Analytics: Click EventLink");
+				mTracker.send(new HitBuilders.EventBuilder()
+						.setCategory("Click")
+						.setAction("EventLink")
+						.build());
 			}
 
 			private void openWebPage(String url) {
@@ -87,6 +97,13 @@ public class MainActivity extends AppCompatActivity {
 				} else {
 					statusBar.show();
 				}
+
+				Tracker mTracker = ((AnalyticsApplication) getApplication()).getDefaultTracker();
+				Log.i(TAG, "Analytics: Click Background");
+				mTracker.send(new HitBuilders.EventBuilder()
+						.setCategory("Click")
+						.setAction("Background")
+						.build());
 			}
 		});
 	}
@@ -101,6 +118,11 @@ public class MainActivity extends AppCompatActivity {
 
 		setBackground();
 		statusBar.setText(CurrentStatusManager.getStatus(this));
+
+		Tracker mTracker = ((AnalyticsApplication) getApplication()).getDefaultTracker();
+		Log.i(TAG, "Analytics: Screen Main");
+		mTracker.setScreenName("Main");
+		mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 	}
 
 	@Override
@@ -133,6 +155,12 @@ public class MainActivity extends AppCompatActivity {
 				@Override
 				public void onClick(View view) {
 					dialog.show();
+					Tracker mTracker = ((AnalyticsApplication) getApplication()).getDefaultTracker();
+					Log.i(TAG, "Analytics: Click EventView");
+					mTracker.send(new HitBuilders.EventBuilder()
+							.setCategory("Click")
+							.setAction("EventView")
+							.build());
 				}
 			});
 		} else {
