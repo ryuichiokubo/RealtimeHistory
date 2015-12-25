@@ -25,10 +25,19 @@ import com.ryuichiokubo.android.realtimehistory.lib.calender.EventCalender;
 import java.io.IOException;
 import java.text.ParseException;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+import static butterknife.ButterKnife.findById;
+
 public class MainActivity extends AppCompatActivity {
 
 	private static final String TAG = "MainActivity";
-	private AlertDialog dialog;
+
+	@Bind(R.id.main) View mainView;
+
+	private AlertDialog eventDialog;
 	private Snackbar statusBar;
 
 	@Override
@@ -36,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
-		View view = findViewById(R.id.main);
+		ButterKnife.bind(this);
 
 		try {
 			EventCalender.getInstance().init(this);
@@ -46,9 +55,8 @@ public class MainActivity extends AppCompatActivity {
 			Log.e(TAG, "init failed with ParseException. e=" + e);
 		}
 
-		setEventDialog();
-
-		setCurrentStatusBar(view);
+		eventDialog = setupEventDialog();
+		statusBar = setupCurrentStatusBar();
 
 		setFloatingActionButton();
 	}
@@ -71,10 +79,10 @@ public class MainActivity extends AppCompatActivity {
 	protected void onStop() {
 		super.onStop();
 
-		dialog.dismiss();
+		eventDialog.dismiss();
 	}
 
-	private void setEventDialog() {
+	private AlertDialog setupEventDialog() {
 		DialogInterface.OnClickListener linkOpenAction = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -91,57 +99,59 @@ public class MainActivity extends AppCompatActivity {
 			}
 		};
 
-		dialog = new AlertDialog.Builder(this)
+		AlertDialog dialog = new AlertDialog.Builder(this)
 				.setTitle(getString(R.string.news_title))
 				.setMessage(EventCalender.getInstance().getParser().getEvent())
 				.setNeutralButton(R.string.more, linkOpenAction)
 				.create();
+
+		return dialog;
 	}
 
-	private void setCurrentStatusBar(View view) {
-		statusBar = Snackbar
-				.make(view, CurrentStatusManager.getStatus(this), Snackbar.LENGTH_INDEFINITE);
+	private Snackbar setupCurrentStatusBar() {
+		Snackbar snackbar = Snackbar
+				.make(mainView, CurrentStatusManager.getStatus(this), Snackbar.LENGTH_INDEFINITE);
 
-		statusBar.show();
+		snackbar.show();
 
-		view.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (statusBar.isShown()) {
-					statusBar.dismiss();
-				} else {
-					statusBar.show();
-				}
+		return snackbar;
+	}
 
-				AnalyticsManager.getInstance(MainActivity.this).tagEvent(Event.CLICK, "Background");
-			}
-		});
+	@OnClick(R.id.main)
+	void onBackgroundClick() {
+		if (statusBar.isShown()) {
+			statusBar.dismiss();
+		} else {
+			statusBar.show();
+		}
+
+		AnalyticsManager.getInstance(MainActivity.this).tagEvent(Event.CLICK, "Background");
 	}
 
 	private void setBackground() {
-		RelativeLayout layout = (RelativeLayout) findViewById(R.id.main);
+		RelativeLayout layout = findById(this, R.id.main);
 		layout.setBackgroundResource(BackgroundManager.getBackground());
 	}
 
 	private void setDate() {
-		TextView date = (TextView) findViewById(R.id.date);
+		TextView date = findById(this, R.id.date);
 		date.setText(EventCalender.getInstance().getParser().getDate(getResources()));
 	}
 
 	private void setTime() {
-		TextView time = (TextView) findViewById(R.id.time);
+		TextView time = findById(this, R.id.time);
 		time.setText(TimeConverter.getNameInOldFormat());
 	}
 
 	private void setFloatingActionButton() {
-		FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+		FloatingActionButton fab = findById(this, R.id.fab);
 
 		// FIXME: this should happen (also) when reading data is done
 		if (EventCalender.getInstance().getParser().isTodayEventDataSet()) {
 			fab.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					dialog.show();
+					eventDialog.show();
 
 					AnalyticsManager.getInstance(MainActivity.this).tagEvent(Event.CLICK, "EventView");
 				}
