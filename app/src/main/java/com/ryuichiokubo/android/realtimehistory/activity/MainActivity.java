@@ -16,12 +16,11 @@ import android.widget.TextView;
 import com.ryuichiokubo.android.realtimehistory.R;
 import com.ryuichiokubo.android.realtimehistory.lib.BackgroundManager;
 import com.ryuichiokubo.android.realtimehistory.lib.CurrentStatusManager;
-import com.ryuichiokubo.android.realtimehistory.lib.DateConverter;
-import com.ryuichiokubo.android.realtimehistory.lib.EventCalender;
 import com.ryuichiokubo.android.realtimehistory.lib.TimeConverter;
 import com.ryuichiokubo.android.realtimehistory.lib.analytics.AnalyticsManager;
 import com.ryuichiokubo.android.realtimehistory.lib.analytics.Event;
 import com.ryuichiokubo.android.realtimehistory.lib.analytics.Screen;
+import com.ryuichiokubo.android.realtimehistory.lib.calender.EventCalender;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -79,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 		DialogInterface.OnClickListener linkOpenAction = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				openWebPage(EventCalender.getInstance().getLink());
+				openWebPage(EventCalender.getInstance().getParser().getLink());
 
 				AnalyticsManager.getInstance(MainActivity.this).tagEvent(Event.CLICK, "EventLink");
 			}
@@ -94,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
 		dialog = new AlertDialog.Builder(this)
 				.setTitle(getString(R.string.news_title))
-				.setMessage(EventCalender.getInstance().getEvent())
+				.setMessage(EventCalender.getInstance().getParser().getEvent())
 				.setNeutralButton(R.string.more, linkOpenAction)
 				.create();
 	}
@@ -126,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
 	private void setDate() {
 		TextView date = (TextView) findViewById(R.id.date);
-		date.setText(DateConverter.getInstance().getNameInOldFormat(getResources()));
+		date.setText(EventCalender.getInstance().getParser().getDate(getResources()));
 	}
 
 	private void setTime() {
@@ -137,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 	private void setFloatingActionButton() {
 		FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
-		if (EventCalender.getInstance().isTodayEventDataSet()) {
+		if (EventCalender.getInstance().getParser().isTodayEventDataSet()) {
 			fab.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
