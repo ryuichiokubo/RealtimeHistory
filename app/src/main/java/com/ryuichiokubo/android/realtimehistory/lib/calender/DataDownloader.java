@@ -6,17 +6,16 @@ import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 class DataDownloader {
 	@SuppressWarnings("unused")
@@ -24,6 +23,8 @@ class DataDownloader {
 
 	private static final String EVENT_DATA_URL = "http://bakumatsu-ryuichiokubo.rhcloud.com";
 	private static final String DOWNLOADED_FILE_NAME = "events";
+
+	private final OkHttpClient httpClient = new OkHttpClient();
 
 	private static final DataDownloader instance = new DataDownloader();
 
@@ -36,75 +37,40 @@ class DataDownloader {
 	}
 
 	void download(final Context context) {
-		// TODO: reload todayData and UI when download is complete
-		ExecutorService executorService = Executors.newSingleThreadExecutor();
+		if (!isConnected(context)) {
+			return;
+		}
 
-		executorService.submit(new Runnable() {
+		Request request = new Request.Builder().url(EVENT_DATA_URL).build();
+		httpClient.newCall(request).enqueue(new Callback() {
 			@Override
-			public void run() {
-				ConnectivityManager connMgr = (ConnectivityManager)
-						context.getSystemService(Context.CONNECTIVITY_SERVICE);
-				NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+			public void onFailure(Request request, IOException e) {
+				Log.e(TAG, "HTTP request failed. e=" + e);
+			}
 
-				if (networkInfo != null && networkInfo.isConnected()) {
-					URL url;
-					try {
-						url = new URL(EVENT_DATA_URL);
-					} catch (MalformedURLException e) {
-						Log.e(TAG, "URL failed with MalformedURLException. e=" + e);
-						return;
-					}
-
-					HttpURLConnection conn;
-					try {
-						conn = (HttpURLConnection) url.openConnection();
-					} catch (IOException e) {
-						Log.e(TAG, "openConnection failed with IOException. e=" + e);
-						return;
-					}
-
-					conn.setReadTimeout(10000 /* milliseconds */);
-					conn.setConnectTimeout(15000 /* milliseconds */);
-
-					try {
-						conn.setRequestMethod("GET");
-					} catch (ProtocolException e) {
-						Log.e(TAG, "setRequestMethod failed with ProtocolException. e=" + e);
-						return;
-					}
-
-					try {
-						conn.connect();
-					} catch (IOException e) {
-						Log.e(TAG, "connect failed with IOException. e=" + e);
-						return;
-					}
-
-					int response;
-					try {
-						response = conn.getResponseCode();
-					} catch (IOException e) {
-						Log.e(TAG, "getResponseCode failed with IOException. e=" + e);
-						return;
-					}
-
-					Log.d(TAG, "The response is: " + response);
-					if (response != 200) {
-						return;
-					}
-
-					try {
-						writeData(context, conn.getInputStream());
-					} catch (IOException e) {
-						Log.e(TAG, "writeData failed with IOException. e=" + e);
-					}
+			@Override
+			public void onResponse(Response response) throws IOException {
+				if (!response.isSuccessful()) {
+					throw new IOException("Unexpected code " + response);
 				}
+
+				Log.i(TAG, "HTTP request success");
+
+				saveDataInFile(context, response.body().byteStream());
 			}
 		});
 	}
 
-	private static void writeData(Context context, InputStream in) throws IOException {
-		// TODO: should validate downloaded data
+	private boolean isConnected(Context context) {
+		ConnectivityManager connMgr = (ConnectivityManager)
+				context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+		return networkInfo != null && networkInfo.isConnected();
+	}
+
+	private static void saveDataInFile(Context context, InputStream in) throws IOException {
+		// TODO: should validate downloaded data (handle response as string)
 
 		FileOutputStream out = context.openFileOutput(DOWNLOADED_FILE_NAME, Context.MODE_PRIVATE);
 

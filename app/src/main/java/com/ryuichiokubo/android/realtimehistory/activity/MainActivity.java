@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
 	private void setFloatingActionButton() {
 		FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
+		// FIXME: this should happen (also) when reading data is done
 		if (EventCalender.getInstance().getParser().isTodayEventDataSet()) {
 			fab.setOnClickListener(new View.OnClickListener() {
 				@Override
