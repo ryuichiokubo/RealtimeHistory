@@ -13,15 +13,15 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-import com.ryuichiokubo.android.realtimehistory.AnalyticsApplication;
 import com.ryuichiokubo.android.realtimehistory.R;
 import com.ryuichiokubo.android.realtimehistory.lib.BackgroundManager;
 import com.ryuichiokubo.android.realtimehistory.lib.CurrentStatusManager;
 import com.ryuichiokubo.android.realtimehistory.lib.DateConverter;
 import com.ryuichiokubo.android.realtimehistory.lib.EventCalender;
 import com.ryuichiokubo.android.realtimehistory.lib.TimeConverter;
+import com.ryuichiokubo.android.realtimehistory.lib.analytics.AnalyticsManager;
+import com.ryuichiokubo.android.realtimehistory.lib.analytics.Event;
+import com.ryuichiokubo.android.realtimehistory.lib.analytics.Screen;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -54,18 +54,34 @@ public class MainActivity extends AppCompatActivity {
 		setFloatingActionButton();
 	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		// FIXME date and time should be changed based on time, not activity lifecycle
+		setTime();
+		setDate();
+
+		setBackground();
+		statusBar.setText(CurrentStatusManager.getStatus(this));
+
+		AnalyticsManager.getInstance(this).tagScreen(Screen.MAIN);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+
+		dialog.dismiss();
+	}
+
 	private void setEventDialog() {
 		DialogInterface.OnClickListener linkOpenAction = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				openWebPage(EventCalender.getInstance().getLink());
 
-				Tracker mTracker = ((AnalyticsApplication) getApplication()).getDefaultTracker();
-				Log.i(TAG, "Analytics: Click EventLink");
-				mTracker.send(new HitBuilders.EventBuilder()
-						.setCategory("Click")
-						.setAction("EventLink")
-						.build());
+				AnalyticsManager.getInstance(MainActivity.this).tagEvent(Event.CLICK, "EventLink");
 			}
 
 			private void openWebPage(String url) {
@@ -98,38 +114,9 @@ public class MainActivity extends AppCompatActivity {
 					statusBar.show();
 				}
 
-				Tracker mTracker = ((AnalyticsApplication) getApplication()).getDefaultTracker();
-				Log.i(TAG, "Analytics: Click Background");
-				mTracker.send(new HitBuilders.EventBuilder()
-						.setCategory("Click")
-						.setAction("Background")
-						.build());
+				AnalyticsManager.getInstance(MainActivity.this).tagEvent(Event.CLICK, "Background");
 			}
 		});
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-
-		// FIXME date and time should be changed based on time, not activity lifecycle
-		setTime();
-		setDate();
-
-		setBackground();
-		statusBar.setText(CurrentStatusManager.getStatus(this));
-
-		Tracker mTracker = ((AnalyticsApplication) getApplication()).getDefaultTracker();
-		Log.i(TAG, "Analytics: Screen Main");
-		mTracker.setScreenName("Main");
-		mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-
-		dialog.dismiss();
 	}
 
 	private void setBackground() {
@@ -155,12 +142,8 @@ public class MainActivity extends AppCompatActivity {
 				@Override
 				public void onClick(View view) {
 					dialog.show();
-					Tracker mTracker = ((AnalyticsApplication) getApplication()).getDefaultTracker();
-					Log.i(TAG, "Analytics: Click EventView");
-					mTracker.send(new HitBuilders.EventBuilder()
-							.setCategory("Click")
-							.setAction("EventView")
-							.build());
+
+					AnalyticsManager.getInstance(MainActivity.this).tagEvent(Event.CLICK, "EventView");
 				}
 			});
 		} else {

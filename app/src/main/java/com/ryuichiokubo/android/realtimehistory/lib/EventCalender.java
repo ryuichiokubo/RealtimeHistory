@@ -37,7 +37,9 @@ public final class EventCalender {
 	private static final EventCalender instance = new EventCalender();
 	private EnumMap<DataType, String> todayData;
 
-	private EventCalender() {}
+	private EventCalender() {
+		// Singleton
+	}
 
 	public static EventCalender getInstance() {
 		return instance;
