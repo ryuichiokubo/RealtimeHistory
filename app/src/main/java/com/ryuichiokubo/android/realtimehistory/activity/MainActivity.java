@@ -146,16 +146,16 @@ public class MainActivity extends AppCompatActivity {
 					.subscribe(new Action1<Boolean>() {
 						@Override
 						public void call(Boolean bool) {
-							Log.d(TAG, "@@@ call bool=" + bool);
-							chatBubble.setVisibility(View.VISIBLE);
+							if (chatBubble.getVisibility() != View.VISIBLE) {
+								chatBubble.setVisibility(View.VISIBLE);
 
-							// XXX this doesn't seem to handle well when called too fast
-							new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-								@Override
-								public void run() {
-									chatBubble.setVisibility(View.INVISIBLE);
-								}
-							}, 5000); // XXX const (also other rx related timer)
+								new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+									@Override
+									public void run() {
+										chatBubble.setVisibility(View.INVISIBLE);
+									}
+								}, 5000); // XXX const (also other rx related timer)
+							}
 						}
 					});
 		}
