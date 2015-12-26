@@ -33,6 +33,7 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Action1;
+import rx.functions.Func1;
 
 import static butterknife.ButterKnife.findById;
 
@@ -45,11 +46,8 @@ public class MainActivity extends AppCompatActivity {
 	private AlertDialog eventDialog;
 	private Snackbar statusBar;
 
-	private Observable<Boolean> backgroundClickObservable;
-	private Subscription backgroundClickSubscription;
-
-	private Observable<Long> intervalTicker;
-	private Subscription intervalTickerSubscription;
+	private Observable<Boolean> tickerObservable;
+	private Subscription tickerSubscription;
 
 	private boolean isFullyVisible = false;
 
@@ -73,8 +71,18 @@ public class MainActivity extends AppCompatActivity {
 
 		setFloatingActionButton();
 
-		intervalTicker = Observable.interval(1, TimeUnit.SECONDS);
-		backgroundClickObservable = Observable.create(new Observable.OnSubscribe<Boolean>() {
+		tickerObservable = setupTickerObservable();
+	}
+
+	private Observable<Boolean> setupTickerObservable() {
+		Observable<Boolean> intervalTicker = Observable.interval(5, TimeUnit.SECONDS).map(new Func1<Long, Boolean>() {
+			@Override
+			public Boolean call(Long aLong) {
+				return true;
+			}
+		});
+
+		Observable<Boolean> backgroundClickObservable = Observable.create(new Observable.OnSubscribe<Boolean>() {
 			@Override
 			public void call(final Subscriber<? super Boolean> subscriber) {
 				findById(MainActivity.this, R.id.main).setOnClickListener(new View.OnClickListener() {
@@ -86,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
 
 			}
 		});
+
+		return Observable.merge(intervalTicker, backgroundClickObservable);
 	}
 
 	@Override
@@ -102,8 +112,7 @@ public class MainActivity extends AppCompatActivity {
 		setBackground();
 		statusBar.setText(CurrentStatusManager.getStatus(this));
 
-		subscribeToIntervalTicker();
-		subscribeToBackgroundClick();
+		subscribeToTicker();
 
 		AnalyticsManager.getInstance(this).tagScreen(Screen.MAIN);
 	}
@@ -115,8 +124,7 @@ public class MainActivity extends AppCompatActivity {
 
 		isFullyVisible = false;
 
-		unsubscribeFromIntervalTicker();
-		unsubscribeFromBackgroundClick();
+		unsubscribeFromTicker();
 	}
 
 	@Override
@@ -127,37 +135,20 @@ public class MainActivity extends AppCompatActivity {
 		eventDialog.dismiss();
 	}
 
-	private void subscribeToIntervalTicker() {
-		if (intervalTickerSubscription == null || intervalTickerSubscription.isUnsubscribed()) {
-			intervalTickerSubscription = intervalTicker.subscribe(new Action1<Long>() {
+	private void subscribeToTicker() {
+		if (tickerSubscription == null || tickerSubscription.isUnsubscribed()) {
+			tickerSubscription = tickerObservable.subscribe(new Action1<Boolean>() {
 				@Override
-				public void call(Long aLong) {
-					Log.d(TAG, "@@@ call aLong=" + aLong);
+				public void call(Boolean bool) {
+					Log.d(TAG, "@@@ call bool=" + bool);
 				}
 			});
 		}
 	}
 
-	private void unsubscribeFromIntervalTicker() {
-		if (intervalTickerSubscription != null) {
-			intervalTickerSubscription.unsubscribe();
-		}
-	}
-
-	private void subscribeToBackgroundClick() {
-		if (backgroundClickSubscription == null || backgroundClickSubscription.isUnsubscribed()) {
-			backgroundClickSubscription = backgroundClickObservable.subscribe(new Action1<Boolean>() {
-				@Override
-				public void call(Boolean aBoolean) {
-					Log.d(TAG, "@@@ bg call");
-				}
-			});
-		}
-	}
-
-	private void unsubscribeFromBackgroundClick() {
-		if (backgroundClickSubscription != null) {
-			backgroundClickSubscription.unsubscribe();
+	private void unsubscribeFromTicker() {
+		if (tickerSubscription != null) {
+			tickerSubscription.unsubscribe();
 		}
 	}
 
@@ -187,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
 		dialog.setOnShowListener(new DialogInterface.OnShowListener() {
 			@Override
 			public void onShow(DialogInterface dialog) {
-				unsubscribeFromIntervalTicker();
+				unsubscribeFromTicker();
 			}
 		});
 
@@ -195,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onDismiss(DialogInterface dialog) {
 				if (isFullyVisible) {
-					subscribeToIntervalTicker();
+					subscribeToTicker();
 				}
 			}
 		});
