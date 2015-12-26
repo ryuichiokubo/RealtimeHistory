@@ -30,6 +30,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Action1;
 
@@ -44,8 +45,11 @@ public class MainActivity extends AppCompatActivity {
 	private AlertDialog eventDialog;
 	private Snackbar statusBar;
 
-	private Subscription intervalTickerSubscription;
+	private Observable<Boolean> backgroundClickObservable;
+	private Subscription backgroundClickSubscription;
+
 	private Observable<Long> intervalTicker;
+	private Subscription intervalTickerSubscription;
 
 	private boolean isFullyVisible = false;
 
@@ -70,6 +74,18 @@ public class MainActivity extends AppCompatActivity {
 		setFloatingActionButton();
 
 		intervalTicker = Observable.interval(1, TimeUnit.SECONDS);
+		backgroundClickObservable = Observable.create(new Observable.OnSubscribe<Boolean>() {
+			@Override
+			public void call(final Subscriber<? super Boolean> subscriber) {
+				findById(MainActivity.this, R.id.main).setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						subscriber.onNext(true);
+					}
+				});
+
+			}
+		});
 	}
 
 	@Override
@@ -87,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
 		statusBar.setText(CurrentStatusManager.getStatus(this));
 
 		subscribeToIntervalTicker();
+		subscribeToBackgroundClick();
 
 		AnalyticsManager.getInstance(this).tagScreen(Screen.MAIN);
 	}
@@ -99,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
 		isFullyVisible = false;
 
 		unsubscribeFromIntervalTicker();
+		unsubscribeFromBackgroundClick();
 	}
 
 	@Override
@@ -123,6 +141,23 @@ public class MainActivity extends AppCompatActivity {
 	private void unsubscribeFromIntervalTicker() {
 		if (intervalTickerSubscription != null) {
 			intervalTickerSubscription.unsubscribe();
+		}
+	}
+
+	private void subscribeToBackgroundClick() {
+		if (backgroundClickSubscription == null || backgroundClickSubscription.isUnsubscribed()) {
+			backgroundClickSubscription = backgroundClickObservable.subscribe(new Action1<Boolean>() {
+				@Override
+				public void call(Boolean aBoolean) {
+					Log.d(TAG, "@@@ bg call");
+				}
+			});
+		}
+	}
+
+	private void unsubscribeFromBackgroundClick() {
+		if (backgroundClickSubscription != null) {
+			backgroundClickSubscription.unsubscribe();
 		}
 	}
 
@@ -179,12 +214,6 @@ public class MainActivity extends AppCompatActivity {
 
 	@OnClick(R.id.main)
 	void onBackgroundClick() {
-		if (statusBar.isShown()) {
-			statusBar.dismiss();
-		} else {
-			statusBar.show();
-		}
-
 		AnalyticsManager.getInstance(MainActivity.this).tagEvent(Event.CLICK, "Background");
 	}
 
