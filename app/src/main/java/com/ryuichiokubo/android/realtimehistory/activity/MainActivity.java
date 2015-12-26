@@ -24,10 +24,14 @@ import com.ryuichiokubo.android.realtimehistory.lib.calender.EventCalender;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import rx.Observable;
+import rx.Subscription;
+import rx.functions.Action1;
 
 import static butterknife.ButterKnife.findById;
 
@@ -39,6 +43,11 @@ public class MainActivity extends AppCompatActivity {
 
 	private AlertDialog eventDialog;
 	private Snackbar statusBar;
+
+	private Subscription intervalTickerSubscription;
+	private Observable<Long> intervalTicker;
+
+	private boolean isFullyVisible = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,11 +68,16 @@ public class MainActivity extends AppCompatActivity {
 		statusBar = setupCurrentStatusBar();
 
 		setFloatingActionButton();
+
+		intervalTicker = Observable.interval(1, TimeUnit.SECONDS);
 	}
 
 	@Override
 	protected void onResume() {
+		Log.d(TAG, "@@@ onResume");
 		super.onResume();
+
+		isFullyVisible = true;
 
 		// FIXME date and time should be changed based on time, not activity lifecycle
 		setTime();
@@ -72,14 +86,44 @@ public class MainActivity extends AppCompatActivity {
 		setBackground();
 		statusBar.setText(CurrentStatusManager.getStatus(this));
 
+		subscribeToIntervalTicker();
+
 		AnalyticsManager.getInstance(this).tagScreen(Screen.MAIN);
 	}
 
 	@Override
+	protected void onPause() {
+		Log.d(TAG, "@@@ onPause");
+		super.onPause();
+
+		isFullyVisible = false;
+
+		unsubscribeFromIntervalTicker();
+	}
+
+	@Override
 	protected void onStop() {
+		Log.d(TAG, "@@@ onStop");
 		super.onStop();
 
 		eventDialog.dismiss();
+	}
+
+	private void subscribeToIntervalTicker() {
+		if (intervalTickerSubscription == null || intervalTickerSubscription.isUnsubscribed()) {
+			intervalTickerSubscription = intervalTicker.subscribe(new Action1<Long>() {
+				@Override
+				public void call(Long aLong) {
+					Log.d(TAG, "@@@ call aLong=" + aLong);
+				}
+			});
+		}
+	}
+
+	private void unsubscribeFromIntervalTicker() {
+		if (intervalTickerSubscription != null) {
+			intervalTickerSubscription.unsubscribe();
+		}
 	}
 
 	private AlertDialog setupEventDialog() {
@@ -104,6 +148,22 @@ public class MainActivity extends AppCompatActivity {
 				.setMessage(EventCalender.getInstance().getParser().getEvent())
 				.setNeutralButton(R.string.more, linkOpenAction)
 				.create();
+
+		dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+			@Override
+			public void onShow(DialogInterface dialog) {
+				unsubscribeFromIntervalTicker();
+			}
+		});
+
+		dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+			@Override
+			public void onDismiss(DialogInterface dialog) {
+				if (isFullyVisible) {
+					subscribeToIntervalTicker();
+				}
+			}
+		});
 
 		return dialog;
 	}
