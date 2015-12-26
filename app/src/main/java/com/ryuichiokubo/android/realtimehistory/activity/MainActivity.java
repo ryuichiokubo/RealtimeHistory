@@ -4,6 +4,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -32,6 +34,7 @@ import butterknife.OnClick;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -42,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
 	private static final String TAG = "MainActivity";
 
 	@Bind(R.id.main) View mainView;
+	@Bind(R.id.chat_bubble) TextView chatBubble;
 
 	private AlertDialog eventDialog;
 	private Snackbar statusBar;
@@ -75,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private Observable<Boolean> setupTickerObservable() {
-		Observable<Boolean> intervalTicker = Observable.interval(5, TimeUnit.SECONDS).map(new Func1<Long, Boolean>() {
+		Observable<Boolean> intervalTicker = Observable.interval(10, TimeUnit.SECONDS).map(new Func1<Long, Boolean>() {
 			@Override
 			public Boolean call(Long aLong) {
 				return true;
@@ -137,12 +141,23 @@ public class MainActivity extends AppCompatActivity {
 
 	private void subscribeToTicker() {
 		if (tickerSubscription == null || tickerSubscription.isUnsubscribed()) {
-			tickerSubscription = tickerObservable.subscribe(new Action1<Boolean>() {
-				@Override
-				public void call(Boolean bool) {
-					Log.d(TAG, "@@@ call bool=" + bool);
-				}
-			});
+			tickerSubscription = tickerObservable
+					.observeOn(AndroidSchedulers.mainThread())
+					.subscribe(new Action1<Boolean>() {
+						@Override
+						public void call(Boolean bool) {
+							Log.d(TAG, "@@@ call bool=" + bool);
+							chatBubble.setVisibility(View.VISIBLE);
+
+							// XXX this doesn't seem to handle well when called too fast
+							new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+								@Override
+								public void run() {
+									chatBubble.setVisibility(View.INVISIBLE);
+								}
+							}, 5000); // XXX const (also other rx related timer)
+						}
+					});
 		}
 	}
 
