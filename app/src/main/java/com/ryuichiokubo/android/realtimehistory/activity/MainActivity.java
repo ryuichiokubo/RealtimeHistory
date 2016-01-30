@@ -43,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
 	private static final String TAG = "MainActivity";
 
-	private static final int BUBBLE_TIME_TO_APPEAR = 6000;
-	private static final int BUBBLE_TIME_TO_DISAPPEAR = 3000;
+	private static final int BUBBLE_TIME_TO_APPEAR = 10000;
+	private static final int BUBBLE_TIME_TO_DISAPPEAR = 5000;
 
 	@Bind(R.id.main) View mainView;
 	@Bind(R.id.chat_bubble) TextView chatBubble;
