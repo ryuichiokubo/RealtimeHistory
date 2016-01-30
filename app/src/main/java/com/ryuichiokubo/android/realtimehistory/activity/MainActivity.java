@@ -32,7 +32,6 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Observable;
-import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -43,6 +42,9 @@ import static butterknife.ButterKnife.findById;
 public class MainActivity extends AppCompatActivity {
 
 	private static final String TAG = "MainActivity";
+
+	private static final int BUBBLE_TIME_TO_APPEAR = 6000;
+	private static final int BUBBLE_TIME_TO_DISAPPEAR = 3000;
 
 	@Bind(R.id.main) View mainView;
 	@Bind(R.id.chat_bubble) TextView chatBubble;
@@ -79,13 +81,16 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private Observable<Boolean> setupTickerObservable() {
-		Observable<Boolean> intervalTicker = Observable.interval(10, TimeUnit.SECONDS).map(new Func1<Long, Boolean>() {
+		Observable<Boolean> intervalTicker = Observable
+				.interval(BUBBLE_TIME_TO_APPEAR, TimeUnit.MILLISECONDS)
+				.map(new Func1<Long, Boolean>() {
 			@Override
 			public Boolean call(Long aLong) {
 				return true;
 			}
 		});
 
+		/* XXX react on click
 		Observable<Boolean> backgroundClickObservable = Observable.create(new Observable.OnSubscribe<Boolean>() {
 			@Override
 			public void call(final Subscriber<? super Boolean> subscriber) {
@@ -100,11 +105,13 @@ public class MainActivity extends AppCompatActivity {
 		});
 
 		return Observable.merge(intervalTicker, backgroundClickObservable);
+		*/
+
+		return intervalTicker;
 	}
 
 	@Override
 	protected void onResume() {
-		Log.d(TAG, "@@@ onResume");
 		super.onResume();
 
 		isFullyVisible = true;
@@ -123,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
 
 	@Override
 	protected void onPause() {
-		Log.d(TAG, "@@@ onPause");
 		super.onPause();
 
 		isFullyVisible = false;
@@ -133,7 +139,6 @@ public class MainActivity extends AppCompatActivity {
 
 	@Override
 	protected void onStop() {
-		Log.d(TAG, "@@@ onStop");
 		super.onStop();
 
 		eventDialog.dismiss();
@@ -154,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
 									public void run() {
 										chatBubble.setVisibility(View.INVISIBLE);
 									}
-								}, 5000); // XXX const (also other rx related timer)
+								}, BUBBLE_TIME_TO_DISAPPEAR);
 							}
 						}
 					});
