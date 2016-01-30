@@ -4,8 +4,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -151,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
 					.subscribe(new Action1<Boolean>() {
 						@Override
 						public void call(Boolean bool) {
+							/* disable chat bubble for now
 							if (chatBubble.getVisibility() != View.VISIBLE) {
 								chatBubble.setVisibility(View.VISIBLE);
 
@@ -161,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
 									}
 								}, BUBBLE_TIME_TO_DISAPPEAR);
 							}
+							*/
 						}
 					});
 		}
