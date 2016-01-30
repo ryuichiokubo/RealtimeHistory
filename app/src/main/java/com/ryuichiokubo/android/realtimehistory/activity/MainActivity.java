@@ -62,18 +62,7 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 		ButterKnife.bind(this);
 
-		try {
-			EventCalender.getInstance().init(this);
-		} catch (IOException e) {
-			Log.e(TAG, "init failed with IOException. e=" + e);
-		} catch (ParseException e) {
-			Log.e(TAG, "init failed with ParseException. e=" + e);
-		}
-
-		eventDialog = setupEventDialog();
-		statusBar = setupCurrentStatusBar();
-
-		setFloatingActionButton();
+		EventCalender.getInstance().downloadData(this);
 
 		tickerObservable = setupTickerObservable();
 	}
@@ -82,11 +71,11 @@ public class MainActivity extends AppCompatActivity {
 		Observable<Boolean> intervalTicker = Observable
 				.interval(BUBBLE_TIME_TO_APPEAR, TimeUnit.MILLISECONDS)
 				.map(new Func1<Long, Boolean>() {
-			@Override
-			public Boolean call(Long aLong) {
-				return true;
-			}
-		});
+					@Override
+					public Boolean call(Long aLong) {
+						return true;
+					}
+				});
 
 		/* XXX react on click
 		Observable<Boolean> backgroundClickObservable = Observable.create(new Observable.OnSubscribe<Boolean>() {
@@ -114,6 +103,10 @@ public class MainActivity extends AppCompatActivity {
 
 		isFullyVisible = true;
 
+		prepareData();
+
+		setFloatingActionButton();
+
 		// FIXME date and time should be changed based on time, not activity lifecycle
 		setTime();
 		setDate();
@@ -124,6 +117,19 @@ public class MainActivity extends AppCompatActivity {
 		subscribeToTicker();
 
 		AnalyticsManager.getInstance(this).tagScreen(Screen.MAIN);
+	}
+
+	private void prepareData() {
+		try {
+			EventCalender.getInstance().prepareData(this);
+		} catch (IOException e) {
+			Log.e(TAG, "init failed with IOException. e=" + e);
+		} catch (ParseException e) {
+			Log.e(TAG, "init failed with ParseException. e=" + e);
+		}
+
+		eventDialog = setupEventDialog();
+		statusBar = setupCurrentStatusBar();
 	}
 
 	@Override
@@ -248,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
 
 		// FIXME: this should happen (also) when reading data is done
 		if (EventCalender.getInstance().getParser().isTodayEventDataSet()) {
+			fab.setVisibility(View.VISIBLE);
 			fab.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {

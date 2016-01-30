@@ -28,8 +28,11 @@ public final class EventCalender {
 	}
 
 	// TODO: ensure this is called
-	public void init(Context context) throws IOException, ParseException {
+	public void prepareData(Context context) throws IOException, ParseException {
 		DataParser.getInstance().parse(getDataReader(context));
+	}
+
+	public void downloadData(Context context) {
 		DataDownloader.getInstance().download(context);
 	}
 
